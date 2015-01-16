@@ -57,7 +57,9 @@ window.onload = function() {
 		"WY": ["MT", "SD", "NE", "CO", "UT", "ID"]
 	}
 
-	
+	var colorlist = ["color1", "color2", "color3", "color4"]
+	var mapcoloring = {};
+
 	// Count the total number of collisions on the map. 
 	function collisions(mapcoloring) {
 		var collision = 0;
@@ -74,39 +76,11 @@ window.onload = function() {
 
 	function fitness(population) {
 		popfitness = [];
-		for (var i = 0, n = population.length; i < n; i++){
-			individualfit = collisions(population[i]);
+		for (var i = 0; i < 100; i++){
+			individualfit = collisions(popfitness[i]);
 			popfitness.push(individualfit);
 		}
 		return popfitness;
-	}
-
-	function selection(population, popfitness){
-		survivors = [];
-		fitst = popfitness.indexOf(Math.min.apply(null, popfitness));
-		alpha = population[fitst]
-		survivors.push(alpha)
-
-		popfitness.splice(fitst, 1)
-		population.splice(fitst, 1)
-
-		secondfitst = popfitness.indexOf(Math.min.apply(null, popfitness));
-		alpha2 = population[secondfitst]
-		survivors.push(alpha2)
-
-		return survivors;
-	}
-
-	function crossover(oldgeneration){
-		parent1 = oldgeneration[Math.floor(Math.random() * oldgeneration.length)]
-		parent2 = oldgeneration[Math.floor(Math.random() * oldgeneration.length)]
-
-		while(parent1 === parent2){
-			parent2 = oldgeneration[Math.floor(Math.random() * oldgeneration.length)]
-		}
-
-		promotor = 
-		terminator = 'g'
 	}
 
 	// Find the node with the highest number of collisions
@@ -179,9 +153,6 @@ window.onload = function() {
 	}
 
 	// Create the map itself.
-	var colorlist = ["color1", "color2", "color3", "color4"]
-	var mapcoloring = {};
-
 	var data_map = new Datamap({
  
 		element: document.getElementById("mapcontainer"),
@@ -191,6 +162,7 @@ window.onload = function() {
 			dummy: { fillKey: "defaultFill" }
 		},
 
+			
 		fills: {
 			defaultFill: "#555555",
 			color1: "#ff0000",
@@ -216,18 +188,25 @@ window.onload = function() {
 		states.push(county);
 	}
 
-	// Create a population
-	var population = []
-	for (var i = 0; i < 100; i++){
-		var individu = {};
-		for(var county in neighbours){
-			individu[county] = {fillKey: colorlist[Math.floor(Math.random() * colorlist.length)]}
-		};
-		population.push(individu);
-	}
-	mapsfitness = fitness(population);
+	console.log(collisions(mapcoloring));
 
-	topdogs = selection(population,mapsfitness)
-	console.log(topdogs[1][states[Math.floor(Math.random() * states.length)]])
+	// Initiate the coloring 
+	var colorsequence = setInterval(function() {
+		var target = selectnode();
+		var before = collisions(mapcoloring);
+		changecolor(target, data_map);
+		var after = collisions(mapcoloring);
+		console.log(after)
+		
+		if (after === 0){
+			clearInterval(colorsequence);
+		}
 
+		if (before === after){
+			mapcoloring[states[Math.floor(Math.random() * states.length)]].fillKey = colorlist[Math.floor(Math.random() * colorlist.length)]
+			changecolor(states[Math.floor(Math.random() * states.length)], data_map)
+			changecolor(states[Math.floor(Math.random() * states.length)], data_map)
+		}
+		
+	}, 300);
 }
