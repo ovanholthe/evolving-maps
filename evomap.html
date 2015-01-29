@@ -18,40 +18,52 @@
   <body>
     <div id="intro">
     <h1>Evolving Maps</h1>
-    <p>Evolution is a mechanism of selecting the strongest individuals of a group and using their blueprints (or dna) to create even stronger indiviuals. One other aspect of evolution is that it does not only apply to nature. Using the principles of evolution (which are fitness, selection, crossover and mutation), one finds the tools to tackle a multitude of problems. This webpage is designed to show how you can apply evolution theory to solve an abstract puzzle using a program. A program that uses the theory of evolution is called a genetic algorithm (GA).
+    <p>
+        Evolution is a mechanism of selecting the best adapted individuals of a group and using their blueprints (or dna) to create even better adapted indiviuals. A very peculiar aspect of evolution is that it does not only apply to nature. Using the principles of evolution (which are fitness, selection, crossover and mutation), one finds the tools to tackle a multitude of problems. This webpage is designed to show you how you can apply evolution theory to solve an abstract puzzle using a program. A program that uses the theory of evolution is called a genetic algorithm (GA).
     </p>
-    <p>The problem to be solved is called the map-coloring problem. Its definition is as follows: color all the regions of a certain map in such a way that no adjacent regions share the same color and do this by using as few colors as possible. Sounds easy enough, right? However, despite its appearance, there have been quite some famous mathematicians who have bent their head around this task. Do not be fooled, finding a solution wasn't the hard part, but prooving that the found solution was one with a minimum amount of colors turned out to be a tedious task. 
+    <h2>The Problem</h2>
+    <p>
+        The problem to be solved is called the map-coloring problem. Its definition is as follows: color all the regions of a certain map in such a way that no adjacent regions share the same color and do this by using as few colors as possible. Sounds easy enough, right? However, despite its appearance, there have been quite some famous mathematicians who have bent their head around this task. Do not be fooled, finding a solution wasn't the hard part, but proving that the found solution was one with a minimum amount of colors turned out to be a tedious task. 
     </p>
-    <p>This is where <a href="http://en.wikipedia.org/wiki/Four_color_theorem">the 4-color theorem</a> comes in. The theorem is first mentioned around 1850 by Francis Guthry, but was only first proven more than a century later, by Kenneth Appel and Wolfgang Haaken, who used a computer to help them. It was the first time a computer was used to prove a mathematical theorem. Do not worry, this page will not guide you through the proof, it will merely use the theorem. 
+    <p>
+        This is where <a href="http://en.wikipedia.org/wiki/Four_color_theorem">the 4-color theorem</a> comes in. The theorem is first mentioned around 1850 by Francis Guthry, but was only first proven more than a century later, by Kenneth Appel and Wolfgang Haaken, who used a computer to help them. It was the first time a computer was used to prove a mathematical theorem. Do not worry, this page will not guide you through the proof, it will merely use the theorem. 
     </p>
-    <p>The theorem states the following: any map can be colored, while satisfying aforementioned conditions, with a maximum of 4 different colors. This is a very helpful constraint on the amount of solutions and is one of the factors that allows to use evolution theory in finding a solution. Do note that the theorem states a <i>maximum</i>; some maps can be colored with three or even two colors (think of a checkboard). The map of the USA however, has to be content with 4. 
+    <p>
+        The theorem states the following: any map can be colored, while satisfying aforementioned conditions, with a maximum of 4 different colors. This is a very helpful constraint on the amount of solutions and is one of the factors that allows to use evolution theory in finding a solution. Do note that the theorem states a <i>maximum</i>; some maps can be colored with three or even two colors (think of a checkboard). The map of the USA however, has to be content with 4. 
     </p>
     <h2>Definitions</h2>
-    <p>Before the genetic algorithm is showed in action, it is useful to clear up some definitions and steps in the algorithm. 
+    <p>
+        Before the genetic algorithm is showed in action, it is useful to clear up some definitions and steps in the algorithm. 
         <ul type="circle">
-            <li><b>Population:</b> a population is defined as a number of collected individuals. In this case an individual is a map that is randomly colored. A population can contain any number of indivuals. 
+            <li>
+                <b>Population:</b> a population is defined as a number of collected individuals. In this case an individual is a map that is randomly colored. A population can contain any number of indivuals. 
             </li>
-            <li><b>Fitness:</b> the fitness of a map is determined by the amount of collisions. A collision occurs when two adjacent regions have the same color. The lower the number of collisions, the fitter a map is. You can click the button below to color the map randomly and see how many collisions it has. 
+            <li>
+                <b>Fitness:</b> the fitness of a map is determined by the amount of collisions. A collision occurs when two adjacent regions have the same color. The lower the number of collisions, the fitter a map is. You can click the button below to color the map randomly and see how many collisions it has. 
             </li>
-<!--            <button onclick='colorRandom("example_map")'>color and calculate</button>-->
             <button id="startknop">color and calculate</button>
             <div id="example"></div>
-            <div id="examplecol"></div>
-            <li><b>Selection:</b> the selection is made by keeping only the fittest individuals of the population. 
+            <p id="examplecol"></p>
+            <li>
+                <b>Selection:</b> the selection is made by keeping only the fittest individuals of the population. 
             </li>
-            <li><b>Crossover: </b>Out of the selection two maps are chosen to generate one new map. This is done by taking half of the state colors of one map, and the other half of the other map. Then these halfs are combined to create a new full dna-set, in other words: a new fully colored map.
+            <li>
+                <b>Crossover: </b>Out of the selection two maps are chosen to generate one new map. This is done by taking half of the state colors of one map, and the other half of the other map. Then these halfs are combined to create a new full dna-set, in other words: a new fully colored map.
             </li>
-            <li><b>Mutation: </b>to keep genetic variation within the population, the maps also mutate a bit when newly formed. This means that a couple of states are chosen and given a different color. 
+            <li>
+                <b>Mutation: </b>to keep genetic variation within the population, the maps also mutate a bit when newly formed. This means that a couple of states are chosen and given a different color. 
             </li>
         </ul>
-        
+        In short, the algorithm works as follows: you first select the fittest indiviuals of the population. Next, you use these individuals to create new ones. This is done by combining half of the specific elements of one individual with half of another one, in the hope that the best halves are selected so better individuals are created. This process of reproduction is repeated until there are again 100 subjects. Then everything starts over, beginning with selection. 
     </p>
     <h2>The algorithm</h2>
     <h3>Selection</h3>
-    <p>Now for the process itself. It is not very enlightening to show the whole population, that would just come down to showing 100 maps randomly colored. So instead only a selection of the selection is shown, to make clear that there are numerous maps used behind the scenes to make sure the GA shows proper development and outcomes. So part of the selection would look something like this: 
+    <p>
+        How to apply these principles on map coloring? One piece of the puzzle is to identify the specific color of each state on the map as a metaphore for its DNA. With 51 states, we then have 51 peaces of DNA. The fitness of a map is determined, as mentioned above, by the number of collisions. Less collisions indicate good coloring/DNA. The process of creating a new map can be viewed as combining 25 states and their colors of one map and then the 26 other states and their colors of another, resulting a new fully colored maps, with hopefully less collisions than its parents!
+        Alright, to business. We start out with a population of 100 differently colored maps. To give you a small example of how selection works, imagine having 15 maps and throwing away the ten with most collisions, leaving you with: 
     </p>
     <button onclick='select(); this.disabled = true'>Selection</button>
-    
+
     </div>
     <div id="selection">
         <div class="selected"></div>
@@ -63,12 +75,43 @@
     
     <div id="evolution">
         <h3>Parents and Child</h3>
-        <p>When the selection is made, the next target is to create new maps until there are as many maps in total as there were in the previous population. Creating a new map is done by selecting two maps in the selection, called parents. Next, half of the coloring of states of parent 1 is chosen and the other half of parent 2, in such a way that the two halves complement eachother into a new fully colored map, also called the child. Below, you can exactly follow this process. The images show the parent maps and the child map, including their number of collisions. What you first see during the animation, is the coloring of the parents that is displayed. Then half of both parents is colored white, indicating the parts of the 'dna' that are not used. If you pay close attention, you can actually see that the coloring of the child corresponds exactly to the combination of the 50% of dna that remained. </p>
+        <p>
+            When the selection is made, the next target is to create new maps until there are as many maps in total as there were in the previous population. The animation below will show you the reproduction of the fittest child of each generation. It displays to parent maps, first fully colored. Then half of both parents is colored white, which are exactly the halves that are thrown away. Now watch carefully, because the combination of the colored halves that remain will match the child that is shown below the parents! 
+        </p>
+        <table>
+            <tr>
+                <td>Number of generations: </td>
+                <td><input type="number" id="myGenerations" value="20"></td>
+                <td width="40%" id="error1"></td>
+                <td>Generation: </td>
+                <td id="gencount"></td>
+            </tr>
+            <tr>
+                <td>Rate of mutations: </td>
+                <td><input type="number" id="myMutations" value="2"></td>
+                <td width="40%" id="error2"></td>
+                <td>Collisions on fittest map: </td>
+                <td id="fittestind"></td>
+            </tr>
+            <tr>
+                <td>Speed of process (in seconds): </td>
+                <td><input type="number" id="mySpeed" value="1"></td>
+                <td width="40%" id="error3"></td>
+            </tr>
+            <tr>
+                <button id="startevo">Start Evolution</button>
+            </tr>
+        </table>
         <div id="parents">
-            <div id="mapcontainer"><p>Collisions: <a id="col1">hoi</a></p></div>
-            <div id="parent"><p>Collisions: <a id="col2">hoi</a></p></div>
+            <div id="mapcontainer"><p>Parent 1. Collisions: <a id="col1"></a></p></div>
+            <div id="parent"><p>Parent 2. Collisions: <a id="col2"></a></p></div>
         </div>
-        <div id="child"><p>Collisions: <a id="col3">hoi</a></p></div>
+        <div>
+            <div id="child"><p>Fittest child. Collisions: <a id="col3"></a></p></div>
+            <p>
+                Feel free to play around with the parameters given. With more generations, the chances grow that a child with no collisions will occur. The number of mutations determines the amount of genetic variation within the population (that is, how much all the maps will look like each other). Lots of mutation will not always benefit fitness, because a mutation can also lead to more collisions. Finally, if you want to see the outcome of 1000 generation, but you don't have got all day, than you can accelerate the process a bit by altering the speed. 
+            </p>
+        </div>
     </div>
     <footer></footer>
   </body>

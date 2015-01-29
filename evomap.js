@@ -54,23 +54,25 @@ var neighbours = {
 		"WV": ["PA", "MD", "VA", "KY", "OH"],
 		"WI": ["MI", "IL", "IA", "MN"],
 		"WY": ["MT", "SD", "NE", "CO", "UT", "ID"]
-	}
+	};
 
 // Global lists and objects. 
-var colorlist = ["color1", "color2", "color3", "color4"]
+var colorlist = ["color1", "color2", "color3", "color4"];
 var mapcoloring = {};
 var orderedstates = ["WA","OR","CA","AZ","NV","UT","ID","MT","WY","CO","NM","TX",
-"OK","KS","NE","SD","ND","MN","IA","MO","AR","LA","MS","IL","WI","MI","IN","KY",
-"TN","AL","FL","GA","SC","NC","VA","WV","OH","PA","NY","VT","NH","ME","MA","RI",
-"CT","NJ","DE","MD","DC","AK","HI"];
+	"OK","KS","NE","SD","ND","MN","IA","MO","AR","LA","MS","IL","WI","MI","IN","KY",
+	"TN","AL","FL","GA","SC","NC","VA","WV","OH","PA","NY","VT","NH","ME","MA","RI",
+	"CT","NJ","DE","MD","DC","AK","HI"];
 var selectionlist = document.getElementsByClassName("selected"); 
+// List of just the states. 
+var states = [];
+for (county in neighbours){
+	states.push(county);
+}
 
 
-
+// Prepare all elements on the site. 
 window.onload = function() {
-
-	/* Next follow the function used in the evolution process. An important definition
-	is collision: a collision occurs when two adjacent counties have the same color. */
 
 	// Below the actual map elements are created.
 
@@ -164,15 +166,54 @@ window.onload = function() {
 	colorWhite(data_map);
 	colorWhite(data_map2);
 
-	// List of just the states. 
-	var states = [];
-	for (county in neighbours){
-		states.push(county);
+	// Making the buttons on the page work. 
+	d3.select("#startknop").
+		on("click", function() {
+			colorRandom(example_map);
+		});
+	
+	d3.select("#startevo").
+		on("click", function() {
+			evolve(data_map, data_map2, data_map3);
+		})
+}
+
+/* Next follow the functions used in the evolution process. An important definition
+	is collision: a collision occurs when two adjacent counties have the same color. */
+
+// The evolution process. 
+function evolve(data_map, data_map2, data_map3){
+	// Color the maps white again. 
+	colorWhite(data_map);
+	colorWhite(data_map2);
+	colorWhite(data_map3);
+
+	// Set variable parameters (user input). 
+	var maxgeneration = Number(document.getElementById("myGenerations").value);
+	var maxspeed = Number(document.getElementById("mySpeed").value) * 1000;
+	var maxmutations = Number(document.getElementById("myMutations").value);
+
+	// Check value of user input. 
+	if (maxgeneration % 1 != 0 || maxgeneration < 1){
+		document.getElementById("error1").innerHTML = "Enter integer larger then 0";
+		return;
+	} else {
+		document.getElementById("error1").innerHTML = "";
 	}
 
-	/* Below the genetic algorithm is initiated. First a population is made, 
-	then a selection and indiviuals are created through crossover until the 
-	selection is as large as the previous population. */
+	if (maxmutations < 0){
+		document.getElementById("error2").innerHTML = "Enter number larger then 0";
+		return;
+	} else {
+		document.getElementById("error2").innerHTML = "";
+	}
+
+	if (maxspeed < 0){
+		document.getElementById("error3").innerHTML = "Enter number larger then 0";
+		return;
+	} else {
+		document.getElementById("error3").innerHTML = "";
+	}
 
 	// Create a population
 	var population = []
@@ -208,11 +249,13 @@ window.onload = function() {
 			var badDNA = selectnode(baby);
 
 			// Mutate: change the "dna" a little bit, i.e. give a few states different colors. 
-			mutate(baby, badDNA);
-			baby[states[Math.floor(Math.random() * states.length)].fillKey = colorlist[Math.floor(Math.random() * colorlist.length)]];
-			baby[states[Math.floor(Math.random() * states.length)].fillKey = colorlist[Math.floor(Math.random() * colorlist.length)]];
+			for (var i = 0; i < maxmutations; i++){
+				mutate(baby, badDNA);
+				baby[states[Math.floor(Math.random() * states.length)].fillKey = colorlist[Math.floor(Math.random() * colorlist.length)]];
+				baby[states[Math.floor(Math.random() * states.length)].fillKey = colorlist[Math.floor(Math.random() * colorlist.length)]];
+			}
 			if (fitst === average){
-				for (var i = 0; i < 2; i++){
+				for (var i = 0; i < 10; i++){
 					baby[states[Math.floor(Math.random() * states.length)].fillKey = colorlist[Math.floor(Math.random() * colorlist.length)]];
 				}
 			}
@@ -229,6 +272,7 @@ window.onload = function() {
 				bestchild = baby;
 			}
 		}
+		console.log(data_map2)
 		// display parent colors and show number of collisions. 
 		var colorMomDad = setTimeout(function(){
 			data_map.updateChoropleth(father);
@@ -236,7 +280,7 @@ window.onload = function() {
 			document.getElementById("col1").innerHTML = collisions(father);
 			document.getElementById("col2").innerHTML = collisions(mother);
 			document.getElementById("col3").innerHTML = collisions(bestchild);
-		}, 500);
+		}, maxspeed / 5);
 
 		population = nextgen;
 		mapsfitness = fitness(nextgen);
@@ -256,39 +300,26 @@ window.onload = function() {
 			}
 			data_map.updateChoropleth(show1);
 			data_map2.updateChoropleth(show2);
-		}, 1000);
+		}, maxspeed/3);
 		
 		// Display the colors of the fittest child. 
 		var colorchild = setTimeout(function(){
 			data_map3.updateChoropleth(bestchild);
-		}, 500);
+		}, maxspeed / 2);
 
 		console.log(Math.min.apply(null, mapsfitness), laziest, average);
+
 		generation++;
+		document.getElementById("gencount").innerHTML = generation;
+		document.getElementById("fittestind").innerHTML = Math.min.apply(null, mapsfitness);
 
 		// Terminate after number of generations. 
-		if (generation === 20 || fitst === 0){
+		if (generation === maxgeneration || fitst === 0){
 			clearInterval(evolution);
 		}
 	
-	}, 1000);
-
-	d3.select("#startknop").
-		on("click", function() {
-			colorRandom(example_map);
-		});
-	
-	d3.select("#kleurknop").
-		on("click", function() {
-			for (var i = 0; i < selectionlist.length; i++){
-				colorRandom(selectionlist[i]);
-			}
-		})
-}
-
-console.log(">>> " + example_map);
-/* Next follow the functions used in the evolution process. An important definition
-	is collision: a collision occurs when two adjacent counties have the same color. */
+	}, maxspeed);
+};
 
 // Display part of selection. 
 function select(){
@@ -315,9 +346,7 @@ function select(){
 				highlightFillColor: "black"
 			}
 		});
-		//var colorpart = setTimeout(function(){
-			colorRandom(part);
-		//}, 500);
+		colorRandom(part);
 	};
 };
 
@@ -329,9 +358,9 @@ function collisions(mapcoloring) {
 		for(buur in buren){
 			if (mapcoloring[county].fillKey === mapcoloring[buren[buur]].fillKey){
 				collision += 1;
-			}
-		}
-	}
+			};
+		};
+	};
 	return collision;
 };
 
@@ -350,51 +379,54 @@ function selection(population, popfitness){
 	survivors = [];
 	for (var i = 0; i < 40; i++){
 		var fitst = popfitness.indexOf(Math.min.apply(null, popfitness));
-		var alpha = population[fitst]
-		survivors.push(alpha)
+		var alpha = population[fitst];
+		survivors.push(alpha);
 
-		popfitness.splice(fitst, 1)
-		population.splice(fitst, 1)
-	}
+		popfitness.splice(fitst, 1);
+		population.splice(fitst, 1);
+	};
 
 	return survivors;
 };
 
 // Create new maps by using parts of the selected ones 
 function crossover(oldgeneration){
-	parent1 = oldgeneration[Math.floor(Math.random() * oldgeneration.length)]
-	parent2 = oldgeneration[Math.floor(Math.random() * oldgeneration.length)]
+	/* Of each parent half of its dna (= half of its colored states) is used to 
+	create a child. The halfs are chosen randomly by selecting 25 states of parent 1
+	and complementing this with the missing states of parent 2. */
+
+	// Choose parents out of selection. 
+	parent1 = oldgeneration[Math.floor(Math.random() * oldgeneration.length)];
+	parent2 = oldgeneration[Math.floor(Math.random() * oldgeneration.length)];
 
 	while(parent1 === parent2){
-		parent2 = oldgeneration[Math.floor(Math.random() * oldgeneration.length)]
+		parent2 = oldgeneration[Math.floor(Math.random() * oldgeneration.length)];
 	}
-
-	//data_map.updateChoropleth(parent1)
-	//data_map2.updateChoropleth(parent2)
 	
-
-	var promotor = Math.floor(Math.random() * orderedstates.length)
-	var terminator = (promotor + 25) % 50
+	var promotor = Math.floor(Math.random() * orderedstates.length);
+	var terminator = (promotor + 25) % 50;
 	var child = {};
 	var dnapart1 = {};
 	var dnapart2 = {};
 
+	// Create a child by adding the halves of both parents. 
+	// Also store the halves that are not used for later in the animation. 
 	if (promotor < terminator){
 		var start1 = 0;
 		while (start1 < promotor){
 			child[orderedstates[start1]] = parent1[orderedstates[start1]];
 			dnapart1[orderedstates[start1]] = parent2[orderedstates[start1]];
 			start1++; 
-		}
+		};
 		for (var j = promotor; j < terminator; j++){
 			child[orderedstates[j]] = parent2[orderedstates[j]];
 			dnapart2[orderedstates[j]] = parent1[orderedstates[j]];
-		}
+		};
 		for(var k = terminator, n = orderedstates.length; k < n; k++){
 			child[orderedstates[k]] = parent1[orderedstates[k]];
 			dnapart1[orderedstates[k]] = parent2[orderedstates[k]];
-		}
-	}
+		};
+	};
 
 	if (promotor > terminator){
 		var start2 = 0;
@@ -402,16 +434,16 @@ function crossover(oldgeneration){
 			child[orderedstates[start2]] = parent1[orderedstates[start2]];
 			dnapart1[orderedstates[start2]] = parent2[orderedstates[start2]];
 			start2++; 
-		}
+		};
 		for (var j = terminator; j < promotor; j++){
 			child[orderedstates[j]] = parent2[orderedstates[j]];
 			dnapart2[orderedstates[j]] = parent1[orderedstates[j]];
-		}
+		};
 		for(var k = promotor, n = orderedstates.length; k < n; k++){
 			child[orderedstates[k]] = parent1[orderedstates[k]];
 			dnapart1[orderedstates[k]] = parent2[orderedstates[k]];
-		}
-	}
+		};
+	};
 	return [child, dnapart1, dnapart2, parent1, parent2];
 };
 
@@ -425,51 +457,49 @@ function selectnode(individual){
 		for(var buur in buren){
 			if (individual[county].fillKey === individual[buren[buur]].fillKey){
 				botsingen += 1;
-			}
-		}
+			};
+		};
 		if (botsingen > maxcol){
 			maxcol = botsingen;
 			changenode = county;
-		}
-	}
+		};
+	};
 	return changenode;
 };
 
 // Change the color of a selected node to the color with least collisions. 
 function mutate(unit, node){
-	
-	dictionary = {'color1': 0, 'color2': 0, 'color3': 0, 'color4': 0}
-	buren = neighbours[node];
+	// Keep track of number of collisions for each color. 
+	var dictionary = {'color1': 0, 'color2': 0, 'color3': 0, 'color4': 0};
+	var buren = neighbours[node];
 	for (i in buren){
 		if (mapcoloring[buren[i]].fillKey === "color1"){
 			dictionary.color1 += 1;
-		}
+		};
 		if (mapcoloring[buren[i]].fillKey === "color2"){
 			dictionary.color2 += 1;
-		}
+		};
 		if (mapcoloring[buren[i]].fillKey === "color3"){
 			dictionary.color3 += 1;
-		}
+		};
 		if (mapcoloring[buren[i]].fillKey === "color4"){
 			dictionary.color4 += 1;
-		}
-	}
+		};
+	};
 	
-	// Search for key with minimum value.
-	min = 'color1'
-	value = dictionary.color1
+	// Search for key with minimum value and give fillKey this value. 
+	var min = 'color1';
+	var value = dictionary.color1;
 	for (col in dictionary){
-		
 		if (dictionary[col] < value){
-			value = dictionary[col]
-			min = col
-		}
-	}
-
-	unit[node].fillKey = min
+			value = dictionary[col];
+			min = col;
+		};
+	};
+	unit[node].fillKey = min;
 };
 
-// Add colors to the states. 
+// Color all states white. 
 function colorWhite(map) {
 	
 	for(var county in neighbours){
