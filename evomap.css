@@ -1,0 +1,78 @@
+body {
+	font-family: "charter", serif;
+	background-color: #fcfcfa
+}
+
+h1 {
+	text-align: center;
+	background-color: #d8d8d8;
+	margin-top: 0;
+	margin-bottom: 0;
+}
+
+#intro{
+	margin-left: auto;
+	margin-right: auto;
+	width: 80%;
+	text-align: justify;
+}
+
+#example{
+	height: 250px;
+	width: 450px;
+}
+
+#selection{
+	margin-right: auto;
+	margin-left: auto;
+	height: 110px;
+	width: 80%
+
+}
+
+.selected{
+	height: 100px;
+	width: 180px;
+	float: left;
+}
+
+#evolution{
+	margin-left: auto;
+	margin-right: auto;
+	width: 80%;
+	position: relative;
+	text-align: justify;
+}
+
+#parents{
+	margin-left: auto;
+	margin-right: auto;
+	height:300px;
+	width: 80%;
+
+}
+
+#mapcontainer{
+	height: 250px;
+	width: 450px;
+	position: relative;
+	float: left;
+	/*top: 30px;*/
+	opacity: 1;
+}
+
+#parent{
+	height: 250px;
+	width: 450px;
+	position: relative;
+	/*top: 30px;*/
+	float: left;
+	opacity: 1;
+}
+#child{
+	height: 250px;
+	width: 450px;
+	position: relative;
+	left: 250px;*/
+	
+}
