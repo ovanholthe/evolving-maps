@@ -11,6 +11,12 @@ The program will guide you through the steps of a genetic algorithm and shows ho
 map coloring correspond to the elements of evolution. In the end an animation is displayed to show how 
 parts of DNA are used to create new individuals. 
 
+![](https://github.com/ovanholthe/Images/raw/master/sa1.png)
+
+
+
+
+
 Copyright (c) 2015 by Olivier van Holthe tot Echten
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
